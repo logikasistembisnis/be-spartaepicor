@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\SyncEpicorPartTran::class,
+        Commands\SyncLaborDtl::class
     ];
 
     /**
@@ -24,6 +25,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //
+        $schedule->command('sync:epicor-parttran')
+                ->hourly()
+                ->sendOutputTo(storage_path('logs/scheduler-parttran.log'))
+                ->withoutOverlapping(); 
+
+        $schedule->command('sync:epicor-labordtl')
+                ->dailyAt('01:00')
+                ->sendOutputTo(storage_path('logs/scheduler-labordtl.log'))
+                ->withoutOverlapping();
     }
 }
