@@ -25,7 +25,7 @@ class LaborDtlController extends Controller
         ini_set('memory_limit', '512M');
         set_time_limit(1800); // 30 menit
 
-        // Jika dipanggil oleh Cron (parameter null), default ke H-1 (kemarin)
+        // Jika dipanggil oleh Cron (parameter null),
         // Jika dipanggil API (parameter diisi), gunakan parameter tsb.
         if (is_null($startDate)) {
             $startDate = date('Ymd');
@@ -189,7 +189,6 @@ class LaborDtlController extends Controller
         $startDate = $request->query('startDate');
 
         // Panggil fungsi inti. 
-        // Jika param null, syncLaborDtlData akan auto-default ke H-1
         $result = $this->syncLaborDtlData($period, $startDate);
 
         if (!$result['success']) {
