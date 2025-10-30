@@ -69,7 +69,7 @@ class LaborDtlController extends Controller
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_LABORDTL_API_URL'), [
+            ->get(env('EPICOR_API_URL'). '/ETL_LaborDtl/Data', [
                 'Periode' => $period,
                 'StartDate' => $startDate,
                 'OffsetNum' => $offsetNum,
