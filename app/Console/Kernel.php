@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
                 ->withoutOverlapping(); 
 
         $schedule->command('sync:epicor-labordtl')
-                ->dailyAt('01:00')
+                ->hourly()
                 ->sendOutputTo(storage_path('logs/scheduler-labordtl.log'))
                 ->withoutOverlapping();
     }
