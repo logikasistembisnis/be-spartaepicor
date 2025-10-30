@@ -26,7 +26,6 @@ class SyncLaborDtl extends Command
      */
     public function handle()
     {
-        Log::channel('cron')->info('=== MEMULAI CRON JOB: sync:epicor-labordtl ===');
         $this->info('Memulai sinkronisasi data LaborDtl dari Epicor');
 
         // 1. Inisialisasi Controller
@@ -39,12 +38,10 @@ class SyncLaborDtl extends Command
         if (!$result['success']) {
             $errorMsg = $result['error'] ?? 'Unknown error';
             $this->error('Sinkronisasi Gagal! ' . $errorMsg);
-            Log::channel('cron')->error('HASIL: GAGAL.', $result);
             return Command::FAILURE;
         }
 
         $this->info('Sinkronisasi Berhasil!');
-        Log::channel('cron')->info('HASIL: SUKSES.', $result);
         
         // Sesuaikan tabel output
         $this->table(

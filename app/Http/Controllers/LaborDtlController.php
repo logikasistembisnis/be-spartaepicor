@@ -34,8 +34,6 @@ class LaborDtlController extends Controller
             $period = date('ym', strtotime($startDate));
         }
 
-        Log::info("Memulai sinkronisasi LaborDtl. StartDate: {$startDate}, Period: {$period}");
-
         $offsetNum = 0;
         $fetchNum = 5000;
         $totalProcessed = 0;
