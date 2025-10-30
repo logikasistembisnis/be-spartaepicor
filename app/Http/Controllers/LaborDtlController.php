@@ -28,7 +28,7 @@ class LaborDtlController extends Controller
         // Jika dipanggil oleh Cron (parameter null), default ke H-1 (kemarin)
         // Jika dipanggil API (parameter diisi), gunakan parameter tsb.
         if (is_null($startDate)) {
-            $startDate = date('Ymd', strtotime('-1 day'));
+            $startDate = date('Ymd');
         }
         if (is_null($period)) {
             $period = date('ym', strtotime($startDate));
@@ -43,9 +43,6 @@ class LaborDtlController extends Controller
         $maxLaborHedSeqProcessed = 0;
         $maxLaborDtlSeqProcessed = 0;
 
-        $syncDate = null;
-        $syncTime = null;
-
         // Definisi Kolom dan Sintaks SQL
         $columnNames = [
             'employeenum', 'laborhedseq', 'labordtlseq', 'labortype', 'labortypepseudo',
@@ -59,8 +56,7 @@ class LaborDtlController extends Controller
             'changedby', 'changedate', 'changetime', 'submittedby', 'shift',
             'jrtiwhcode_c', 'jrtibinnum_c', 'jrtilotnumber_c', 'onfielddifference_c',
             'jrtilotnumberprod_c', 'srcentry_c', 'cancelled_c', 'labordtlidadj_c',
-            'imwhcode_c', 'imwhbinnum_c', 'imlotnum_c', 'qtyngrepairable_c',
-            'syncdate', 'synctime'
+            'imwhcode_c', 'imwhbinnum_c', 'imlotnum_c', 'qtyngrepairable_c'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -138,8 +134,7 @@ class LaborDtlController extends Controller
                         $getVal($row, 'LaborDtl_JRTILotNumberProd_c'), $getVal($row, 'LaborDtl_SrcEntry_c'),
                         $getBool($row, 'LaborDtl_Cancelled_c'), $getInt($row, 'LaborDtl_LaborDtlIDAdj_c'),
                         $getVal($row, 'LaborDtl_IMWHCode_c'), $getVal($row, 'LaborDtl_IMWHBinNum_c'),
-                        $getVal($row, 'LaborDtl_IMLotNum_c'), $getFloat($row, 'LaborDtl_qtyngrepairable_c'),
-                        $syncDate, $syncTime
+                        $getVal($row, 'LaborDtl_IMLotNum_c'), $getFloat($row, 'LaborDtl_qtyngrepairable_c')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
