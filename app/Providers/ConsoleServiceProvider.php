@@ -11,6 +11,8 @@ use App\Console\Commands\SyncPart;
 use App\Console\Commands\SyncWarehouse;
 use App\Console\Commands\SyncUD11;
 use App\Console\Commands\SyncOpMaster;
+use App\Console\Commands\SyncRcvHead;
+use App\Console\Commands\SyncWarehouseBin;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -27,7 +29,9 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncPart::class,
         SyncWarehouse::class,
         SyncUD11::class,
-        SyncOpMaster::class
+        SyncOpMaster::class,
+        SyncRcvHead::class,
+        SyncWarehouseBin::class,
     ];
 
     /**

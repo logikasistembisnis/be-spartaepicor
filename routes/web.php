@@ -25,3 +25,5 @@ $router->get('/fetchdatapart', 'PartController@fetchDataPart');
 $router->get('/fetchdatawarehouse', 'WarehouseController@fetchDataWarehouse');
 $router->get('/fetchdataud11', 'UD11Controller@fetchDataUD11');
 $router->get('/fetchdataopmaster', 'OpMasterController@fetchDataOpMaster');
+$router->get('/fetchdatarcvhead', 'RcvHeadController@fetchDataRcvHead');
+$router->get('/fetchdatawarehousebin', 'WarehouseBinController@fetchDataWarehouseBin');

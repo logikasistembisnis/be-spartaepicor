@@ -58,5 +58,13 @@ class Kernel extends ConsoleKernel
                 ->weeklyOn(1, '01:00')
                 ->sendOutputTo(storage_path('logs/scheduler-opmaster.log'))
                 ->withoutOverlapping();
+        $schedule->command('sync:epicor-rcvhead')
+                ->cron('0 */2 * * *')
+                ->sendOutputTo(storage_path('logs/scheduler-rcvhead.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-warehousebin')
+                ->weeklyOn(1)
+                ->sendOutputTo(storage_path('logs/scheduler-warehousebin.log'))
+                ->withoutOverlapping();
     }
 }
