@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use App\Console\Commands\SyncEpicorPartTran; 
 use App\Console\Commands\SyncLaborDtl;
 use App\Console\Commands\SyncRcvDtl;
+use App\Console\Commands\SyncUD06;
+use App\Console\Commands\SyncPart;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -18,6 +20,8 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncEpicorPartTran::class,
         SyncLaborDtl::class,
         SyncRcvDtl::class,
+        SyncUD06::class,
+        SyncPart::class,
     ];
 
     /**
