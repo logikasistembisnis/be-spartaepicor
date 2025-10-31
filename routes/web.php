@@ -23,3 +23,4 @@ $router->get('/fetchdatarcvdtl', 'RcvDtlController@fetchDataRcvDtl');
 $router->get('/fetchdataud06', 'UD06Controller@fetchDataUD06');
 $router->get('/fetchdatapart', 'PartController@fetchDataPart');
 $router->get('/fetchdatawarehouse', 'WarehouseController@fetchDataWarehouse');
+$router->get('/fetchdataud11', 'UD11Controller@fetchDataUD11');
