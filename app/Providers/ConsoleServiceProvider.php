@@ -8,6 +8,7 @@ use App\Console\Commands\SyncLaborDtl;
 use App\Console\Commands\SyncRcvDtl;
 use App\Console\Commands\SyncUD06;
 use App\Console\Commands\SyncPart;
+use App\Console\Commands\SyncWarehouse;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,7 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncRcvDtl::class,
         SyncUD06::class,
         SyncPart::class,
+        SyncWarehouse::class,
     ];
 
     /**
