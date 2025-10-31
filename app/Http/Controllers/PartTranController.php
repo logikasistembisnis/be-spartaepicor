@@ -47,7 +47,7 @@ class PartTranController extends Controller
             'sugpo_vendornum_c', 'bkbsubcontid_c', 'bkbsubcontline_c', 'qtybtg_c',
             'partnumusedtool_c', 'plantused_c', 'panjang_c', 'batang_c',
             'panjang1_c', 'batang1_c', 'panjang2_c', 'batang2_c', 'panjang3_c',
-            'batang3_c', 'panjang4_c', 'batang4_c', 'panjang5_c', 'batang5_c'
+            'batang3_c', 'panjang4_c', 'batang4_c', 'panjang5_c', 'batang5_c', 'sysrevid', 'sysrowid'
         ];
         
         $columnsSql = implode(', ', $columnNames);
@@ -177,6 +177,8 @@ class PartTranController extends Controller
                         (float)$row['PartTran_Batang4_c'] ?? 0,
                         (float)$row['PartTran_Panjang5_c'] ?? 0,
                         (float)$row['PartTran_Batang5_c'] ?? 0,
+                        (int)$row['PartTran_SysRevID'] ?? 0,
+                        $row['PartTran_SysRowID'] ?? null,
                     ];
 
                     $dataToInsert[] = $rowData;

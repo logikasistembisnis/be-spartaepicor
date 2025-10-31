@@ -43,7 +43,7 @@ class RcvDtlController extends Controller
             'docinunitcost', 'docinvendorunitcost', 'supplieruninvcreceiptqty', 'ouruninvcreceiptqty', 'taxregioncode', 'taxcatid', 'taxable', 'taxexempt', 
             'notaxrecalc', 'assetnum', 'qtydoc_c', 'qcqtypass_c', 'qcqtyfail_c', 'qcdate_c', 'qcinspectedby_c', 'qcfailremark_c', 'rcvdtlpackslip_c', 
             'rcvdtlpackline_c', 'qtyreturn_c', 'panjang1_c', 'batang1_c', 'panjang2_c', 'batang2_c', 'panjang3_c', 'batang3_c', 'panjang4_c', 'batang4_c', 
-            'panjang5_c', 'batang5_c', 'panjang_c', 'batang_c'
+            'panjang5_c', 'batang5_c', 'panjang_c', 'batang_c', 'sysrevid', 'sysrowid'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -203,7 +203,9 @@ class RcvDtlController extends Controller
                         $getFloat($row, 'RcvDtl_Panjang5_c'),
                         $getFloat($row, 'RcvDtl_Batang5_c'),
                         $getVal($row, 'RcvDtl_panjang_c',),
-                        $getVal($row, 'RcvDtl_batang_c',)
+                        $getVal($row, 'RcvDtl_batang_c',),
+                        $getInt($row, 'RcvDtl_SysRevID'),
+                        $getVal($row, 'RcvDtl_SysRowID',)
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);

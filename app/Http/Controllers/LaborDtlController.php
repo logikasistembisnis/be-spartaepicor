@@ -54,7 +54,7 @@ class LaborDtlController extends Controller
             'changedby', 'changedate', 'changetime', 'submittedby', 'shift',
             'jrtiwhcode_c', 'jrtibinnum_c', 'jrtilotnumber_c', 'onfielddifference_c',
             'jrtilotnumberprod_c', 'srcentry_c', 'cancelled_c', 'labordtlidadj_c',
-            'imwhcode_c', 'imwhbinnum_c', 'imlotnum_c', 'qtyngrepairable_c'
+            'imwhcode_c', 'imwhbinnum_c', 'imlotnum_c', 'qtyngrepairable_c', 'sysrevid', 'sysrowid'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -132,7 +132,8 @@ class LaborDtlController extends Controller
                         $getVal($row, 'LaborDtl_JRTILotNumberProd_c'), $getVal($row, 'LaborDtl_SrcEntry_c'),
                         $getBool($row, 'LaborDtl_Cancelled_c'), $getInt($row, 'LaborDtl_LaborDtlIDAdj_c'),
                         $getVal($row, 'LaborDtl_IMWHCode_c'), $getVal($row, 'LaborDtl_IMWHBinNum_c'),
-                        $getVal($row, 'LaborDtl_IMLotNum_c'), $getFloat($row, 'LaborDtl_qtyngrepairable_c')
+                        $getVal($row, 'LaborDtl_IMLotNum_c'), $getFloat($row, 'LaborDtl_qtyngrepairable_c'),
+                        $getInt($row, 'LaborDtl_SysRevID'), $getVal($row, 'LaborDtl_SysRowID'),
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
