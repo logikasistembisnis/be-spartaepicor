@@ -10,6 +10,7 @@ use App\Console\Commands\SyncUD06;
 use App\Console\Commands\SyncPart;
 use App\Console\Commands\SyncWarehouse;
 use App\Console\Commands\SyncUD11;
+use App\Console\Commands\SyncOpMaster;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,7 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncPart::class,
         SyncWarehouse::class,
         SyncUD11::class,
+        SyncOpMaster::class
     ];
 
     /**
