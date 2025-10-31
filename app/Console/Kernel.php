@@ -66,5 +66,9 @@ class Kernel extends ConsoleKernel
                 ->weeklyOn(1)
                 ->sendOutputTo(storage_path('logs/scheduler-warehousebin.log'))
                 ->withoutOverlapping();
+        $schedule->command('sync:epicor-poheader')
+                ->cron('0 */2 * * *')
+                ->sendOutputTo(storage_path('logs/scheduler-poheader.log'))
+                ->withoutOverlapping();
     }
 }
