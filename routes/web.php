@@ -21,3 +21,4 @@ $router->get('/fetchdataparttran', 'PartTranController@fetchDataPartTran');
 $router->get('/fetchdatalabordtl', 'LaborDtlController@fetchDataLaborDtl');
 $router->get('/fetchdatarcvdtl', 'RcvDtlController@fetchDataRcvDtl');
 $router->get('/fetchdataud06', 'UD06Controller@fetchDataUD06');
+$router->get('/fetchdatapart', 'PartController@fetchDataPart');
