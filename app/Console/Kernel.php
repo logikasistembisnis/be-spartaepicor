@@ -42,5 +42,9 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('01:00')
                 ->sendOutputTo(storage_path('logs/scheduler-ud06.log'))
                 ->withoutOverlapping();
+        $schedule->command('sync:epicor-part')
+                ->cron('0 */2 * * *')
+                ->sendOutputTo(storage_path('logs/scheduler-part.log'))
+                ->withoutOverlapping();
     }
 }
