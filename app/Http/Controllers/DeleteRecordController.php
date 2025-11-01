@@ -21,6 +21,28 @@ class DeleteRecordController extends Controller
         // Hitung timestamp 6 jam sebelum sekarang
         $epochTime = strtotime('-6 hours');
 
+        // Daftar tabel yang boleh dihapus
+        $allowedTables = [
+            'parttran',
+            'labordtl',
+            'rcvdtl',
+            'jobhead',
+            'jobmtl',
+            'opmaster',
+            'part',
+            'partclass',
+            'podetail',
+            'poheader',
+            'porel',
+            'rcvhead',
+            'resource',
+            'ud06',
+            'ud11',
+            'ud101',
+            'warehouse',
+            'warehousebin',
+        ];
+
         do {
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
@@ -53,6 +75,7 @@ class DeleteRecordController extends Controller
                 $sysRowId  = $row['UD14_Key1'] ?? null;
 
                 if (!$tableName || !$sysRowId) continue;
+                if (!in_array($tableName, $allowedTables)) continue;
 
                 try {
                     $deleted = DB::delete("DELETE FROM {$tableName} WHERE sysrowid = ?", [$sysRowId]);
