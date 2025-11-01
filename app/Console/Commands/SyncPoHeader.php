@@ -12,7 +12,7 @@ class SyncPoHeader extends Command
      * Nama perintah (command)
      * @var string
      */
-    protected $signature = 'sync:epicor-poheader';
+    protected $signature = 'sync:epicor-poheader {period?} {startDate?}';
 
     /**
      * Deskripsi singkat perintah ini.
@@ -28,13 +28,15 @@ class SyncPoHeader extends Command
     {
         $this->info('Memulai sinkronisasi data PoHeader dari Epicor');
 
-        // 1. Inisialisasi Controller
+        $period = $this->argument('period');
+        $startDate = $this->argument('startDate');
+        // Inisialisasi Controller
         $controller = new PoHeaderController();
         
-        // 2. Panggil metode sinkronisasi data
-        $result = $controller->syncPoHeaderData();
+        // Panggil metode sinkronisasi data
+        $result = $controller->syncPoHeaderData($period, $startDate);
 
-        // 3. Tampilkan hasil di konsol
+        // Tampilkan hasil di konsol
         if (!$result['success']) {
             $errorMsg = $result['error'] ?? 'Unknown error';
             $this->error('Sinkronisasi Gagal! ' . $errorMsg);

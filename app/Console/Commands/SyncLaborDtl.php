@@ -12,7 +12,7 @@ class SyncLaborDtl extends Command
      * Nama perintah (command)
      * @var string
      */
-    protected $signature = 'sync:epicor-labordtl';
+    protected $signature = 'sync:epicor-labordtl {period?} {startDate?}';
 
     /**
      * Deskripsi singkat perintah ini.
@@ -28,13 +28,15 @@ class SyncLaborDtl extends Command
     {
         $this->info('Memulai sinkronisasi data LaborDtl dari Epicor');
 
-        // 1. Inisialisasi Controller
+        $period = $this->argument('period');
+        $startDate = $this->argument('startDate');
+        // Inisialisasi Controller
         $controller = new LaborDtlController();
         
-        // 2. Panggil metode sinkronisasi data
-        $result = $controller->syncLaborDtlData();
+        // Panggil metode sinkronisasi data
+        $result = $controller->syncLaborDtlData($period, $startDate);
 
-        // 3. Tampilkan hasil di konsol
+        // Tampilkan hasil di konsol
         if (!$result['success']) {
             $errorMsg = $result['error'] ?? 'Unknown error';
             $this->error('Sinkronisasi Gagal! ' . $errorMsg);

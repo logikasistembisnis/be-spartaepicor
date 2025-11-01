@@ -12,7 +12,7 @@ class SyncPart extends Command
      * Nama perintah (command)
      * @var string
      */
-    protected $signature = 'sync:epicor-part';
+    protected $signature = 'sync:epicor-part {period?} {startDate?}';
 
     /**
      * Deskripsi singkat perintah ini.
@@ -28,13 +28,15 @@ class SyncPart extends Command
     {
         $this->info('Memulai sinkronisasi data Part dari Epicor');
 
-        // 1. Inisialisasi Controller
+        $period = $this->argument('period');
+        $startDate = $this->argument('startDate');
+        // Inisialisasi Controller
         $controller = new PartController();
         
-        // 2. Panggil metode sinkronisasi data
-        $result = $controller->syncPartData();
+        // Panggil metode sinkronisasi data
+        $result = $controller->syncPartData($period, $startDate);
 
-        // 3. Tampilkan hasil di konsol
+        // Tampilkan hasil di konsol
         if (!$result['success']) {
             $errorMsg = $result['error'] ?? 'Unknown error';
             $this->error('Sinkronisasi Gagal! ' . $errorMsg);

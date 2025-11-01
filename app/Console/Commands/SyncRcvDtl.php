@@ -12,7 +12,7 @@ class SyncRcvDtl extends Command
      * Nama perintah (command)
      * @var string
      */
-    protected $signature = 'sync:epicor-rcvdtl';
+    protected $signature = 'sync:epicor-rcvdtl {period?} {startDate?}';
 
     /**
      * Deskripsi singkat perintah ini.
@@ -28,13 +28,15 @@ class SyncRcvDtl extends Command
     {
         $this->info('Memulai sinkronisasi data RcvDtl dari Epicor');
 
-        // 1. Inisialisasi Controller
+        $period = $this->argument('period');
+        $startDate = $this->argument('startDate');
+        // Inisialisasi Controller
         $controller = new RcvDtlController();
         
-        // 2. Panggil metode sinkronisasi data
-        $result = $controller->syncRcvDtlData();
+        // Panggil metode sinkronisasi data
+        $result = $controller->syncRcvDtlData($period, $startDate);
 
-        // 3. Tampilkan hasil di konsol
+        // Tampilkan hasil di konsol
         if (!$result['success']) {
             $errorMsg = $result['error'] ?? 'Unknown error';
             $this->error('Sinkronisasi Gagal! ' . $errorMsg);

@@ -12,7 +12,7 @@ class SyncUD11 extends Command
      * Nama perintah (command)
      * @var string
      */
-    protected $signature = 'sync:epicor-ud11';
+    protected $signature = 'sync:epicor-ud11 {period?} {startDate?}';
 
     /**
      * Deskripsi singkat perintah ini.
@@ -28,13 +28,15 @@ class SyncUD11 extends Command
     {
         $this->info('Memulai sinkronisasi data UD11 dari Epicor');
 
-        // 1. Inisialisasi Controller
+        $period = $this->argument('period');
+        $startDate = $this->argument('startDate');
+        // Inisialisasi Controller
         $controller = new UD11Controller();
         
-        // 2. Panggil metode sinkronisasi data
-        $result = $controller->syncUD11Data();
+        // Panggil metode sinkronisasi data
+        $result = $controller->syncUD11Data($period, $startDate);
 
-        // 3. Tampilkan hasil di konsol
+        // Tampilkan hasil di konsol
         if (!$result['success']) {
             $errorMsg = $result['error'] ?? 'Unknown error';
             $this->error('Sinkronisasi Gagal! ' . $errorMsg);
