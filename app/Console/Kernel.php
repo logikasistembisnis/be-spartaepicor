@@ -25,6 +25,8 @@ class Kernel extends ConsoleKernel
         Commands\SyncRcvHead::class,
         Commands\SyncWarehouseBin::class,
         Commands\SyncPoHeader::class,
+        Commands\SyncPoRel::class,
+        Commands\SyncPartClass::class
     ];
 
     /**
@@ -85,8 +87,16 @@ class Kernel extends ConsoleKernel
                 ->sendOutputTo(storage_path('logs/scheduler-deleterec.log'))
                 ->withoutOverlapping();
         $schedule->command('sync:epicor-podetail')
-                ->cron('0 */2 * * *')
+                ->dailyAt('01:00')
                 ->sendOutputTo(storage_path('logs/scheduler-podetail.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-porel')
+                ->dailyAt('01:00')
+                ->sendOutputTo(storage_path('logs/scheduler-porel.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-partclass')
+                ->weeklyOn(1)
+                ->sendOutputTo(storage_path('logs/scheduler-partclass.log'))
                 ->withoutOverlapping();
     }
 }
