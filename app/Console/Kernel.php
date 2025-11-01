@@ -14,7 +14,16 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\SyncEpicorPartTran::class,
-        Commands\SyncLaborDtl::class
+        Commands\SyncLaborDtl::class,
+        Commands\SyncRcvDtl::class,
+        Commands\SyncUD06::class,
+        Commands\SyncPart::class,
+        Commands\SyncWarehouse::class,
+        Commands\SyncUD11::class,
+        Commands\SyncOpMaster::class,
+        Commands\SyncRcvHead::class,
+        Commands\SyncWarehouseBin::class,
+        Commands\SyncPoHeader::class
     ];
 
     /**
