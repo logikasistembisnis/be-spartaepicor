@@ -15,6 +15,7 @@ use App\Console\Commands\SyncOpMaster;
 use App\Console\Commands\SyncRcvHead;
 use App\Console\Commands\SyncWarehouseBin;
 use App\Console\Commands\SyncPoHeader;
+use App\Console\Commands\SyncPoDetail;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -35,7 +36,8 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncOpMaster::class,
         SyncRcvHead::class,
         SyncWarehouseBin::class,
-        SyncPoHeader::class
+        SyncPoHeader::class,
+        SyncPoDetail::class
     ];
 
     /**

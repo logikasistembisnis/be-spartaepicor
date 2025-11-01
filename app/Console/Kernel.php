@@ -84,5 +84,9 @@ class Kernel extends ConsoleKernel
                 ->cron('0 */2 * * *')
                 ->sendOutputTo(storage_path('logs/scheduler-deleterec.log'))
                 ->withoutOverlapping();
+        $schedule->command('sync:epicor-podetail')
+                ->cron('0 */2 * * *')
+                ->sendOutputTo(storage_path('logs/scheduler-podetail.log'))
+                ->withoutOverlapping();
     }
 }

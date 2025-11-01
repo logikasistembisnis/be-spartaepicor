@@ -30,3 +30,4 @@ $router->get('/fetchdataopmaster', 'OpMasterController@fetchDataOpMaster');
 $router->get('/fetchdatarcvhead', 'RcvHeadController@fetchDataRcvHead');
 $router->get('/fetchdatawarehousebin', 'WarehouseBinController@fetchDataWarehouseBin');
 $router->get('/fetchdatapoheader', 'PoHeaderController@fetchDataPoHeader');
+$router->get('/fetchdatapodetail', 'PoDetailController@fetchDataPoDetail');
