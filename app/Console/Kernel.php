@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        Commands\SyncDeleteRecord::class,
         Commands\SyncEpicorPartTran::class,
         Commands\SyncLaborDtl::class,
         Commands\SyncRcvDtl::class,
@@ -23,7 +24,7 @@ class Kernel extends ConsoleKernel
         Commands\SyncOpMaster::class,
         Commands\SyncRcvHead::class,
         Commands\SyncWarehouseBin::class,
-        Commands\SyncPoHeader::class
+        Commands\SyncPoHeader::class,
     ];
 
     /**
@@ -78,6 +79,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:epicor-poheader')
                 ->cron('0 */2 * * *')
                 ->sendOutputTo(storage_path('logs/scheduler-poheader.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-deleterec')
+                ->cron('0 */2 * * *')
+                ->sendOutputTo(storage_path('logs/scheduler-deleterec.log'))
                 ->withoutOverlapping();
     }
 }

@@ -17,6 +17,8 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->get('/fetchdeletedrecords', 'DeleteRecordController@fetchDeletedRecords');
+
 $router->get('/fetchdataparttran', 'PartTranController@fetchDataPartTran');
 $router->get('/fetchdatalabordtl', 'LaborDtlController@fetchDataLaborDtl');
 $router->get('/fetchdatarcvdtl', 'RcvDtlController@fetchDataRcvDtl');
