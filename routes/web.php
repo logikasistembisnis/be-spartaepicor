@@ -31,3 +31,5 @@ $router->get('/fetchdatarcvhead', 'RcvHeadController@fetchDataRcvHead');
 $router->get('/fetchdatawarehousebin', 'WarehouseBinController@fetchDataWarehouseBin');
 $router->get('/fetchdatapoheader', 'PoHeaderController@fetchDataPoHeader');
 $router->get('/fetchdatapodetail', 'PoDetailController@fetchDataPoDetail');
+$router->get('/fetchdataporel', 'PoRelController@fetchDataPoRel');
+$router->get('/fetchdatapartclass', 'PartClassController@fetchDataPartClass');
