@@ -98,5 +98,9 @@ class Kernel extends ConsoleKernel
                 ->weeklyOn(1)
                 ->sendOutputTo(storage_path('logs/scheduler-partclass.log'))
                 ->withoutOverlapping();
+        $schedule->command('sync:epicor-resource')
+                ->dailyAt('01:00')
+                ->sendOutputTo(storage_path('logs/scheduler-resource.log'))
+                ->withoutOverlapping();
     }
 }

@@ -18,6 +18,7 @@ use App\Console\Commands\SyncPoHeader;
 use App\Console\Commands\SyncPoDetail;
 use App\Console\Commands\SyncPoRel;
 use App\Console\Commands\SyncPartClass;
+use App\Console\Commands\SyncResource;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -42,6 +43,7 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncPoDetail::class,
         SyncPoRel::class,
         SyncPartClass::class,
+        SyncResource::class,
     ];
 
     /**
