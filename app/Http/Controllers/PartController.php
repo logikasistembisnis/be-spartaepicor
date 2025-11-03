@@ -56,16 +56,16 @@ class PartController extends Controller
 
         do {
             $apiParams = [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum,
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum'  => (string)$fetchNum,
             ];
 
             // Hanya tambahkan parameter jika nilainya TIDAK null
             if (!is_null($period)) {
-                $apiParams['Periode'] = $period;
+                $apiParams['Periode'] = (string)$period;
             }
             if (!is_null($startDate)) {
-                $apiParams['StartDate'] = $startDate;
+                $apiParams['StartDate'] = (string)$startDate;
             }
 
             $response = Http::withHeaders([
