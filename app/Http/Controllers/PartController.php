@@ -57,16 +57,10 @@ class PartController extends Controller
         do {
             $apiParams = [
                 'OffsetNum' => (string)$offsetNum,
-                'FetchNum'  => (string)$fetchNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
             ];
-
-            // Hanya tambahkan parameter jika nilainya TIDAK null
-            if (!is_null($period)) {
-                $apiParams['Periode'] = (string)$period;
-            }
-            if (!is_null($startDate)) {
-                $apiParams['StartDate'] = (string)$startDate;
-            }
 
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
