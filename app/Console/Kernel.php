@@ -30,7 +30,8 @@ class Kernel extends ConsoleKernel
         Commands\SyncResource::class,
         Commands\SyncJobHead::class,
         Commands\SyncUD101::class,
-        Commands\SyncUD03::class
+        Commands\SyncUD03::class,
+        Commands\SyncJobMtl::class,
     ];
 
     /**
@@ -117,6 +118,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:epicor-ud03')
                 ->dailyAt('01:00')
                 ->sendOutputTo(storage_path('logs/scheduler-ud03.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-jobmtl')
+                ->dailyAt('01:00')
+                ->sendOutputTo(storage_path('logs/scheduler-jobmtl.log'))
                 ->withoutOverlapping();
     }
 }
