@@ -34,3 +34,5 @@ $router->get('/fetchdatapodetail', 'PoDetailController@fetchDataPoDetail');
 $router->get('/fetchdataporel', 'PoRelController@fetchDataPoRel');
 $router->get('/fetchdatapartclass', 'PartClassController@fetchDataPartClass');
 $router->get('/fetchdataresource', 'ResourceController@fetchDataResource');
+$router->get('/fetchdatajobhead', 'JobHeadController@fetchDataJobHead');
+$router->get('/fetchdataud101', 'UD101Controller@fetchDataUD101');
