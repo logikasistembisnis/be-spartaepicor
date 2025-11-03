@@ -94,7 +94,7 @@ class WarehouseBinController extends Controller
                     try {
                         DB::beginTransaction();
                         $placeholderRows = implode(', ', array_fill(0, count($chunk), $placeholderRow));
-                        $sql = "INSERT INTO warehousebin ({$columnsSql}) VALUES {$placeholderRows} ON CONFLICT ({$conflictKeys}) DO UPDATE SET {$updateSetSql}";
+                        $sql = "INSERT INTO whsebin ({$columnsSql}) VALUES {$placeholderRows} ON CONFLICT ({$conflictKeys}) DO UPDATE SET {$updateSetSql}";
                         DB::insert($sql, $currentChunkBindValues);
                         DB::commit();
                         $batchCount++;
