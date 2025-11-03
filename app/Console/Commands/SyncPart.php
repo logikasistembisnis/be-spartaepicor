@@ -15,7 +15,8 @@ class SyncPart extends Command
      */
     protected $signature = 'sync:epicor-part {arg1? : Periode Awal (ym) atau StartDate (Ymd)} 
                             {arg2? : Periode Akhir (ym) atau StartDate (Ymd)} 
-                            {arg3? : StartDate (Ymd)}';
+                            {arg3? : StartDate (Ymd)}
+                            {--all : Ambil semua data tanpa filter Periode atau StartDate}';
 
     /**
      * Deskripsi singkat perintah ini.
@@ -29,6 +30,24 @@ class SyncPart extends Command
      */
     public function handle()
     {
+        $controller = new PartController();
+
+        // --- SCENARIO 3: --all (Ambil Semua Data) ---
+        if ($this->option('all')) {
+            if ($this->argument('arg1') || $this->argument('arg2') || $this->argument('arg3')) {
+                $this->error('Opsi --all tidak dapat digabungkan dengan argumen (Periode/StartDate).');
+                return Command::FAILURE;
+            }
+            
+            $this->info('Memulai sinkronisasi SEMUA data Part dari Epicor');
+
+            // Panggil controller dengan null, null
+            $result = $controller->syncPartData(null, null);
+            
+            return $this->displaySingleResult($result);
+        }
+
+        // --- Logika Argumen (untuk Skenario 1 dan 2) ---
         $arg1 = $this->argument('arg1');
         $arg2 = $this->argument('arg2');
         $arg3 = $this->argument('arg3');
@@ -37,7 +56,7 @@ class SyncPart extends Command
         $endPeriod = null;
         $startDate = null;
         
-        // Cek argumen 3: Jika ada, itu pasti startDate.
+        // Cek argumen 3: Jika ada, itu pasti startDate
         if (!is_null($arg3)) {
             $period = $arg1;
             $endPeriod = $arg2;
@@ -49,33 +68,32 @@ class SyncPart extends Command
             if (strlen($arg2) === 4 && strlen($arg1) === 4) {
                 $period = $arg1;
                 $endPeriod = $arg2;
-            } elseif (strlen($arg2) >= 6) { // StartDate >= 6 digit (Ymd)
+            } elseif (strlen($arg2) >= 6) { 
                 $period = $arg1;
                 $startDate = $arg2;
             } else {
-                $this->error('Format argumen kedua tidak dikenali. Gunakan "ym" untuk EndPeriod atau "Ymd" untuk StartDate.');
+                $this->error('Format argumen kedua tidak dikenali...');
                 return Command::FAILURE;
             }
         } 
         // Cek argumen 1:
         elseif (!is_null($arg1)) {
-            // Hanya Periode
+            // Hanya period
             if (strlen($arg1) === 4) {
                 $period = $arg1;
             } 
-            // Hanya StartDate
+            // Hanya startDate
             elseif (strlen($arg1) >= 6) {
                 $startDate = $arg1;
             } else {
-                $this->error('Format argumen pertama tidak dikenali. Gunakan "ym" untuk Periode atau "Ymd" untuk StartDate.');
+                $this->error('Format argumen pertama tidak dikenali...');
                 return Command::FAILURE;
             }
         }
+        // --- Akhir Logika Parsing Argumen ---
 
-        $controller = new PartController();
-
+        // --- SCENARIO 2: RANGE (Periode Awal dan Akhir diisi) ---
         if ($endPeriod) {
-            // --- LOGIKA LOOPING (RANGE) ---
             if (!$period) {
                 $this->error('Periode awal (argumen pertama) harus diisi jika EndPeriod diisi.');
                 return Command::FAILURE;
@@ -94,11 +112,6 @@ class SyncPart extends Command
                 return Command::FAILURE;
             }
 
-            $this->info("Memulai sinkronisasi Part dari periode $period sampai $endPeriod.");
-            if ($startDate) {
-                $this->warn("Menggunakan filter StartDate: $startDate untuk setiap periode.");
-            }
-
             $current = $start->copy();
             $overallTotalProcessed = 0;
             $overallTotalBatches = 0;
@@ -110,6 +123,7 @@ class SyncPart extends Command
                 $this->line('');
                 $this->info("--- Memproses Periode: $periodString ---");
 
+                // Panggilan ini sekarang akan mengirimkan $startDate sebagai null (jika tidak diisi)
                 $result = $controller->syncPartData($periodString, $startDate);
 
                 if (!$result['success']) {
@@ -118,7 +132,7 @@ class SyncPart extends Command
                     $failCount++;
                 } else {
                     // Akumulasi total dan tampilan sukses
-                    $this->info("Sinkronisasi Berhasil untuk $periodString!");
+                    $this->info("Sinkronisasi Berhasil untuk $periodString! (Total: " . $result['total_processed_api_rows'] . " baris diproses)");
                     $overallTotalProcessed += $result['total_processed_api_rows'];
                     $overallTotalBatches += $result['total_db_batches_processed'];
                     $successCount++;
@@ -129,15 +143,27 @@ class SyncPart extends Command
 
             $this->line('');
             $this->info('======== SINKRONISASI RANGE SELESAI ========');
+            $this->info("Total Periode Sukses: $successCount");
+            $this->info("Total Periode Gagal: $failCount");
+            $this->info("Total Baris Diproses (Keseluruhan): $overallTotalProcessed");
+            
             return $failCount > 0 ? Command::FAILURE : Command::SUCCESS;
 
         } 
         
-        // --- LOGIKA TUNGGAL ---
+        // --- SCENARIO 1: TUNGGAL (atau DEFAULT) ---
         else {
-            $this->info('Memulai sinkronisasi data Part dari Epicor (Mode Tunggal)');
+            $hasArgs = !is_null($arg1) || !is_null($arg2) || !is_null($arg3);
+
+            if ($hasArgs) {
+                 $this->info('Memulai sinkronisasi data Part dari Epicor');
+            } else {
+                // INILAH LOGIKA DEFAULT (SCENARIO 1)
+                $this->info('Menjalankan sinkronisasi untuk hari ini.');
+                $startDate = date('Ymd');
+                $period = date('ym', strtotime($startDate));
+            }
             
-            // Jika tidak ada argumen sama sekali, Controller akan menentukan periode & tanggal hari ini
             if ($period) {
                 $this->info("Periode: $period");
             }
@@ -145,26 +171,35 @@ class SyncPart extends Command
                 $this->info("StartDate: $startDate");
             }
             
+            // Panggil controller
             $result = $controller->syncPartData($period, $startDate); 
-
-            if (!$result['success']) {
-                $errorMsg = $result['error'] ?? 'Unknown error';
-                $this->error('Sinkronisasi Gagal! ' . $errorMsg);
-                return Command::FAILURE;
-            }
-
-            $this->info('Sinkronisasi Berhasil!');
-            $this->table(
-                ['Metrik', 'Nilai'],
-                [
-                    ['Filter StartDate', $result['filter_start_date']],
-                    ['Filter Period', $result['filter_period']],
-                    ['Total Baris Diproses', $result['total_processed_api_rows']],
-                    ['Total Batch Database', $result['total_db_batches_processed']],
-                ]
-            );
-
-            return Command::SUCCESS;
+            
+            return $this->displaySingleResult($result); // Panggil fungsi helper
         }
+    }
+
+    /**
+     * Helper untuk menampilkan hasil Mode Tunggal atau Mode --all
+     * @param array $result
+     * @return int
+     */
+    private function displaySingleResult(array $result): int
+    {
+        if (!$result['success']) {
+            $errorMsg = $result['error'] ?? 'Unknown error';
+            $this->error('Sinkronisasi Gagal! ' . $errorMsg);
+            return Command::FAILURE;
+        }
+
+        $this->info('Sinkronisasi Berhasil!');
+        $this->table(
+            ['Metrik', 'Nilai'],
+            [
+                ['Total Baris Diproses', $result['total_processed_api_rows']],
+                ['Total Batch Database', $result['total_db_batches_processed']],
+            ]
+        );
+
+        return Command::SUCCESS;
     }
 }
