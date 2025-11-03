@@ -13,7 +13,9 @@ class SyncPart extends Command
      * Nama perintah (command)
      * @var string
      */
-    protected $signature = 'sync:epicor-part {startPeriod?} {endPeriod?} {startDate}';
+    protected $signature = 'sync:epicor-part {arg1? : Periode Awal (ym) atau StartDate (Ymd)} 
+                            {arg2? : Periode Akhir (ym) atau StartDate (Ymd)} 
+                            {arg3? : StartDate (Ymd)}';
 
     /**
      * Deskripsi singkat perintah ini.
@@ -27,36 +29,74 @@ class SyncPart extends Command
      */
     public function handle()
     {
-        $startPeriod = $this->argument('startPeriod');
-        $endPeriod = $this->argument('endPeriod');
-        $startDate = $this->option('startDate');
-        // Inisialisasi Controller
-        $controller = new PartController();
+        $arg1 = $this->argument('arg1');
+        $arg2 = $this->argument('arg2');
+        $arg3 = $this->argument('arg3');
         
+        $period = null;
+        $endPeriod = null;
+        $startDate = null;
+        
+        // Cek argumen 3: Jika ada, itu pasti startDate.
+        if (!is_null($arg3)) {
+            $period = $arg1;
+            $endPeriod = $arg2;
+            $startDate = $arg3;
+        } 
+        // Cek argumen 2:
+        elseif (!is_null($arg2)) {
+            // Format periode selalu 'ym' (4 digit) dan StartDate 'Ymd' (8 digit)
+            if (strlen($arg2) === 4 && strlen($arg1) === 4) {
+                $period = $arg1;
+                $endPeriod = $arg2;
+            } elseif (strlen($arg2) >= 6) { // StartDate >= 6 digit (Ymd)
+                $period = $arg1;
+                $startDate = $arg2;
+            } else {
+                $this->error('Format argumen kedua tidak dikenali. Gunakan "ym" untuk EndPeriod atau "Ymd" untuk StartDate.');
+                return Command::FAILURE;
+            }
+        } 
+        // Cek argumen 1:
+        elseif (!is_null($arg1)) {
+            // Hanya Periode
+            if (strlen($arg1) === 4) {
+                $period = $arg1;
+            } 
+            // Hanya StartDate
+            elseif (strlen($arg1) >= 6) {
+                $startDate = $arg1;
+            } else {
+                $this->error('Format argumen pertama tidak dikenali. Gunakan "ym" untuk Periode atau "Ymd" untuk StartDate.');
+                return Command::FAILURE;
+            }
+        }
+
+        $controller = new PartController();
+
         if ($endPeriod) {
-            if (!$startPeriod) {
-                $this->error('startPeriod harus diisi jika endPeriod diisi.');
+            // --- LOGIKA LOOPING (RANGE) ---
+            if (!$period) {
+                $this->error('Periode awal (argumen pertama) harus diisi jika EndPeriod diisi.');
                 return Command::FAILURE;
             }
 
             try {
-                // Buat objek Carbon dari string periode
-                $start = Carbon::createFromFormat('ym', $startPeriod)->startOfMonth();
+                $start = Carbon::createFromFormat('ym', $period)->startOfMonth();
                 $end = Carbon::createFromFormat('ym', $endPeriod)->startOfMonth();
             } catch (\Exception $e) {
                 $this->error('Format periode tidak valid. Gunakan format "ym" (contoh: 2410).');
-                Log::error('Invalid period format', ['start' => $startPeriod, 'end' => $endPeriod, 'error' => $e->getMessage()]);
                 return Command::FAILURE;
             }
 
             if ($start > $end) {
-                $this->error('startPeriod tidak boleh lebih besar dari endPeriod.');
+                $this->error('Periode awal tidak boleh lebih besar dari Periode akhir.');
                 return Command::FAILURE;
             }
 
-            $this->info("Memulai sinkronisasi data Part dari periode $startPeriod sampai $endPeriod...");
+            $this->info("Memulai sinkronisasi Part dari periode $period sampai $endPeriod.");
             if ($startDate) {
-                $this->warn("Menggunakan filter StartDate: $startDate untuk SETIAP periode yang dijalankan.");
+                $this->warn("Menggunakan filter StartDate: $startDate untuk setiap periode.");
             }
 
             $current = $start->copy();
@@ -65,13 +105,11 @@ class SyncPart extends Command
             $successCount = 0;
             $failCount = 0;
 
-            // Mulai Looping per bulan
             while ($current <= $end) {
                 $periodString = $current->format('ym');
                 $this->line('');
                 $this->info("--- Memproses Periode: $periodString ---");
 
-                // Panggil controller untuk periode ini
                 $result = $controller->syncPartData($periodString, $startDate);
 
                 if (!$result['success']) {
@@ -79,55 +117,36 @@ class SyncPart extends Command
                     $this->error("Sinkronisasi Gagal untuk $periodString! " . $errorMsg);
                     $failCount++;
                 } else {
+                    // Akumulasi total dan tampilan sukses
                     $this->info("Sinkronisasi Berhasil untuk $periodString!");
-                    $this->table(
-                        ['Metrik', 'Nilai'],
-                        [
-                            ['Filter StartDate', $result['filter_start_date']],
-                            ['Filter Period', $result['filter_period']],
-                            ['Total Baris Diproses', $result['total_processed_api_rows']],
-                            ['Total Batch Database', $result['total_db_batches_processed']],
-                        ]
-                    );
-                    // Akumulasi total
                     $overallTotalProcessed += $result['total_processed_api_rows'];
                     $overallTotalBatches += $result['total_db_batches_processed'];
                     $successCount++;
                 }
                 
-                // Maju ke bulan berikutnya
                 $current->addMonth();
             }
 
-            // Tampilkan Summary Keseluruhan
             $this->line('');
-            $this->info('--- Sinkronisasi Berhasil! ---');
-            $this->table(
-                ['Metrik Keseluruhan', 'Nilai'],
-                [
-                    ['Periode Sukses', $successCount],
-                    ['Periode Gagal', $failCount],
-                    ['Total Baris Diproses', $overallTotalProcessed],
-                    ['Total Batch Database', $overallTotalBatches],
-                ]
-            );
-
+            $this->info('======== SINKRONISASI RANGE SELESAI ========');
             return $failCount > 0 ? Command::FAILURE : Command::SUCCESS;
 
         } 
-        // Jika end period tidak diisi
+        
+        // --- LOGIKA TUNGGAL ---
         else {
-            $this->info('Memulai sinkronisasi data Part dari Epicor');
-            if ($startPeriod) {
-                $this->info("Periode: $startPeriod");
+            $this->info('Memulai sinkronisasi data Part dari Epicor (Mode Tunggal)');
+            
+            // Jika tidak ada argumen sama sekali, Controller akan menentukan periode & tanggal hari ini
+            if ($period) {
+                $this->info("Periode: $period");
             }
             if ($startDate) {
                 $this->info("StartDate: $startDate");
             }
+            
+            $result = $controller->syncPartData($period, $startDate); 
 
-            $result = $controller->syncPartData($startPeriod, $startDate); 
-
-            // Tampilkan hasil di konsol
             if (!$result['success']) {
                 $errorMsg = $result['error'] ?? 'Unknown error';
                 $this->error('Sinkronisasi Gagal! ' . $errorMsg);
@@ -135,7 +154,6 @@ class SyncPart extends Command
             }
 
             $this->info('Sinkronisasi Berhasil!');
-            
             $this->table(
                 ['Metrik', 'Nilai'],
                 [
