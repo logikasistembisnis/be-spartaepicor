@@ -30,8 +30,8 @@ class WarehouseBinController extends Controller
 
         // Definisi Kolom dan Sintaks SQL
         $columnNames = [
-            'warehousecode', 'binnum', 'description', 'bintype', 'custnum', 'vendornum',
-            'inactive', 'nonnettable','sysrevid', 'sysrowid'
+            'warehousecode', 'binnum', 'description', 'nonnettable', 'custnum', 'vendornum',
+            'inactive','sysrevid', 'sysrowid'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -78,11 +78,10 @@ class WarehouseBinController extends Controller
                         $getVal($row, 'WhseBin_WarehouseCode'),
                         $getVal($row, 'WhseBin_BinNum'),
                         $getVal($row, 'WhseBin_Description'),
-                        $getVal($row, 'WhseBin_BinType'),
+                        $getBool($row, 'WhseBin_NonNettable'),
                         $getInt($row, 'WhseBin_CustNum'),
                         $getInt($row, 'WhseBin_VendorNum'),
                         $getBool($row, 'WhseBin_InActive'),
-                        $getBool($row, 'WhseBin_NonNettable'),
                         $getInt($row, 'WhseBin_SysRevID'),
                         $getVal($row, 'WhseBin_SysRowID')
                     ];
