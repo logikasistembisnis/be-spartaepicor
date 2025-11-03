@@ -67,7 +67,7 @@ class PartController extends Controller
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_Part/Data', [$apiParams]);
+            ->get(env('EPICOR_API_URL'). '/ETL_Part/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
