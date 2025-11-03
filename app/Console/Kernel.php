@@ -105,10 +105,10 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('01:00')
                 ->sendOutputTo(storage_path('logs/scheduler-resource.log'))
                 ->withoutOverlapping();
-        // $schedule->command('sync:epicor-jobhead')
-        //         ->dailyAt('01:00')
-        //         ->sendOutputTo(storage_path('logs/scheduler-jobhead.log'))
-        //         ->withoutOverlapping();
+        $schedule->command('sync:epicor-jobhead')
+                ->dailyAt('01:00')
+                ->sendOutputTo(storage_path('logs/scheduler-jobhead.log'))
+                ->withoutOverlapping();
         $schedule->command('sync:epicor-ud101')
                 ->dailyAt('01:00')
                 ->sendOutputTo(storage_path('logs/scheduler-ud101.log'))
