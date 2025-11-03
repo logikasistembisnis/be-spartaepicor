@@ -24,13 +24,6 @@ class UD11Controller extends Controller
         ini_set('memory_limit', '512M');
         set_time_limit(1800); // 30 menit
 
-        if (is_null($startDate)) {
-            $startDate = date('Ymd');
-        }
-        if (is_null($period)) {
-            $period = date('ym', strtotime($startDate));
-        }
-
         $offsetNum = 0;
         $fetchNum = 5000;
         $totalProcessed = 0;
@@ -70,17 +63,19 @@ class UD11Controller extends Controller
         $conflictKeys = 'key1, key2, key3, key4, key5';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_UD11/Data', [
-                'Periode' => $period,
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum,
-                'StartDate' => $startDate,
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_UD11/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();

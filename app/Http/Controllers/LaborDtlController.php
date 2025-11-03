@@ -25,15 +25,6 @@ class LaborDtlController extends Controller
         ini_set('memory_limit', '512M');
         set_time_limit(1800); // 30 menit
 
-        // Jika dipanggil oleh Cron (parameter null),
-        // Jika dipanggil API (parameter diisi), gunakan parameter tsb.
-        if (is_null($startDate)) {
-            $startDate = date('Ymd');
-        }
-        if (is_null($period)) {
-            $period = date('ym', strtotime($startDate));
-        }
-
         $offsetNum = 0;
         $fetchNum = 5000;
         $totalProcessed = 0;
@@ -64,17 +55,19 @@ class LaborDtlController extends Controller
         $conflictKeys = 'laborhedseq, labordtlseq';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_LaborDtl/Data', [
-                'Periode' => $period,
-                'StartDate' => $startDate,
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_LaborDtl/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();

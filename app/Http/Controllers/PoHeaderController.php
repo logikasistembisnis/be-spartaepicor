@@ -24,13 +24,6 @@ class PoHeaderController extends Controller
         ini_set('memory_limit', '512M');
         set_time_limit(1800); // 30 menit
 
-        if (is_null($startDate)) {
-            $startDate = date('Ymd');
-        }
-        if (is_null($period)) {
-            $period = date('ym', strtotime($startDate));
-        }
-
         $offsetNum = 0;
         $fetchNum = 5000;
         $totalProcessed = 0;
@@ -49,7 +42,7 @@ class PoHeaderController extends Controller
             'taxregioncode', 'taxpoint', 'taxratedate', 'totaltax', 'doctotaltax', 'rpt1totaltax',
             'rpt2totaltax', 'rpt3totaltax', 'totalcharges', 'totalmisccharges', 'totalorder', 'doctotalcharges',
             'doctotalmisc', 'doctotalorder', 'aptaxroundoption', 'carbontotalorder', 'cancelled_c', 'ponumext_c',
-            'mscshphdpacknum_c'
+            'mscshphdpacknum_c', 'printas'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -59,17 +52,19 @@ class PoHeaderController extends Controller
         $conflictKeys = 'ponum';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_PoHeader/Data', [
-                'Periode' => $period,
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum,
-                'StartDate' => $startDate,
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_PoHeader/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -124,6 +119,7 @@ class PoHeaderController extends Controller
                         $getNum($row, 'POHeader_DocTotalMisc'), $getNum($row, 'POHeader_DocTotalOrder'), $getInt($row, 'POHeader_APTaxRoundOption'),
                         $getNum($row, 'POHeader_CarbonTotalOrder'), $getBool($row, 'POHeader_Cancelled_c'), 
                         $getVal($row, 'POHeader_PONumExt_c'), $getInt($row, 'POHeader_MscShpHdPackNum_c'), 
+                        $getVal($row, 'POHeader_PrintAs')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
