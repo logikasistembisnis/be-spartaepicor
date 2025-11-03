@@ -48,7 +48,7 @@ class WarehouseController extends Controller
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_Warehouse/Data', [
+            ->get(env('EPICOR_API_URL'). '/ETL_Warehse/Data', [
                 'OffsetNum' => $offsetNum,
                 'FetchNum' => $fetchNum
             ]);
