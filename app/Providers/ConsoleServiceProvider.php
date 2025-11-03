@@ -21,6 +21,7 @@ use App\Console\Commands\SyncPartClass;
 use App\Console\Commands\SyncResource;
 use App\Console\Commands\SyncJobHead;
 use App\Console\Commands\SyncUD101;
+use App\Console\Commands\SyncUD03;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -47,7 +48,8 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncPartClass::class,
         SyncResource::class,
         SyncJobHead::class,
-        SyncUD101::class
+        SyncUD101::class,
+        SyncUD03::class
     ];
 
     /**

@@ -36,3 +36,4 @@ $router->get('/fetchdatapartclass', 'PartClassController@fetchDataPartClass');
 $router->get('/fetchdataresource', 'ResourceController@fetchDataResource');
 $router->get('/fetchdatajobhead', 'JobHeadController@fetchDataJobHead');
 $router->get('/fetchdataud101', 'UD101Controller@fetchDataUD101');
+$router->get('/fetchdataud03', 'UD03Controller@fetchDataUD03');
