@@ -26,6 +26,7 @@ use App\Console\Commands\SyncJobMtl;
 use App\Console\Commands\SyncOrderHed;
 use App\Console\Commands\SyncVendor;
 use App\Console\Commands\SyncCustomer;
+use App\Console\Commands\SyncOrderDtl;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -57,7 +58,8 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncJobMtl::class,
         SyncOrderHed::class,
         SyncVendor::class,
-        SyncCustomer::class
+        SyncCustomer::class,
+        SyncOrderDtl::class
     ];
 
     /**

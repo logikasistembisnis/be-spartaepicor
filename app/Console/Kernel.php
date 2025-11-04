@@ -34,7 +34,8 @@ class Kernel extends ConsoleKernel
         Commands\SyncJobMtl::class,
         Commands\SyncOrderHed::class,
         Commands\SyncVendor::class,
-        Commands\SyncCustomer::class
+        Commands\SyncCustomer::class,
+        Commands\SyncOrderDtl::class
     ];
 
     /**
@@ -137,6 +138,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:epicor-customer')
                 ->dailyAt('01:00')
                 ->sendOutputTo(storage_path('logs/scheduler-customer.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-orderdtl')
+                ->cron('0 */2 * * *')
+                ->sendOutputTo(storage_path('logs/scheduler-orderdtl.log'))
                 ->withoutOverlapping();
     }
 }
