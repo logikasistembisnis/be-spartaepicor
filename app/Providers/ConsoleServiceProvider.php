@@ -27,6 +27,7 @@ use App\Console\Commands\SyncOrderHed;
 use App\Console\Commands\SyncVendor;
 use App\Console\Commands\SyncCustomer;
 use App\Console\Commands\SyncOrderDtl;
+use App\Console\Commands\SyncUD101A;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -59,7 +60,8 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncOrderHed::class,
         SyncVendor::class,
         SyncCustomer::class,
-        SyncOrderDtl::class
+        SyncOrderDtl::class,
+        SyncUD101A::class,
     ];
 
     /**

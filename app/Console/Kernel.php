@@ -35,7 +35,8 @@ class Kernel extends ConsoleKernel
         Commands\SyncOrderHed::class,
         Commands\SyncVendor::class,
         Commands\SyncCustomer::class,
-        Commands\SyncOrderDtl::class
+        Commands\SyncOrderDtl::class,
+        Commands\SyncUD101A::class,
     ];
 
     /**
@@ -142,6 +143,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:epicor-orderdtl')
                 ->cron('0 */2 * * *')
                 ->sendOutputTo(storage_path('logs/scheduler-orderdtl.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-ud101a')
+                ->cron('0 */2 * * *')
+                ->sendOutputTo(storage_path('logs/scheduler-ud101a.log'))
                 ->withoutOverlapping();
     }
 }
