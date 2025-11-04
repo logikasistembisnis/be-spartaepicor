@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Http\Controllers\RcvHeadController;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class SyncRcvHead extends Command
 {

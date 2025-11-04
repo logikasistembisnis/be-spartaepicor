@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Http\Controllers\UD03Controller;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class SyncUD03 extends Command
 {
