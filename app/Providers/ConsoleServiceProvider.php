@@ -24,6 +24,7 @@ use App\Console\Commands\SyncUD101;
 use App\Console\Commands\SyncUD03;
 use App\Console\Commands\SyncJobMtl;
 use App\Console\Commands\SyncOrderHed;
+use App\Console\Commands\SyncVendor;
 
 class ConsoleServiceProvider extends ServiceProvider
 {
@@ -54,6 +55,7 @@ class ConsoleServiceProvider extends ServiceProvider
         SyncUD03::class,
         SyncJobMtl::class,
         SyncOrderHed::class,
+        SyncVendor::class
     ];
 
     /**

@@ -33,6 +33,7 @@ class Kernel extends ConsoleKernel
         Commands\SyncUD03::class,
         Commands\SyncJobMtl::class,
         Commands\SyncOrderHed::class,
+        Commands\SyncVendor::class
     ];
 
     /**
@@ -127,6 +128,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:epicor-orderhed')
                 ->cron('0 */2 * * *')
                 ->sendOutputTo(storage_path('logs/scheduler-orderhed.log'))
+                ->withoutOverlapping();
+        $schedule->command('sync:epicor-vendor')
+                ->dailyAt('01:00')
+                ->sendOutputTo(storage_path('logs/scheduler-vendor.log'))
                 ->withoutOverlapping();
     }
 }
