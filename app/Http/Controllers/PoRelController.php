@@ -41,7 +41,7 @@ class PoRelController extends Controller
             'sysrevid', 'sysrowid', 'smiremqty', 'lockqty', 'lockdate', 'duedatechanged', 'status', 'arrivedqty',
             'invoicedqty', 'needbydate', 'lockneedbydate', 'inspectionqty', 'failedqty', 'passedqty', 'deliverto', 'taxable',
             'taxexempt', 'notaxrecalc', 'reqchgpromisedate', 'attributesetid', 'numberofpieces', 'numberofpiecesuom', 
-            'planningnumberofpieces', 'firmrelease', 'itlegalnumber_c'
+            'planningnumberofpieces', 'firmrelease', 'itlegalnumber_c', 'changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -82,6 +82,7 @@ class PoRelController extends Controller
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -131,7 +132,7 @@ class PoRelController extends Controller
                         $getDate($row, 'PORel_ReqChgPromiseDate'), $getInt($row, 'PORel_AttributeSetID'),
                         $getInt($row, 'PORel_NumberOfPieces'), $getVal($row, 'PORel_NumberOfPiecesUOM'),
                         $getInt($row, 'PORel_PlanningNumberOfPieces'), $getBool($row, 'PORel_FirmRelease'),
-                        $getVal($row, 'PORel_ITLegalNumber_c')
+                        $getVal($row, 'PORel_ITLegalNumber_c'), $getTimestamp($row, 'Calculated_changedate'),
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
