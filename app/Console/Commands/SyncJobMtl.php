@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Http\Controllers\JobMtlController;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class SyncJobMtl extends Command
 {
