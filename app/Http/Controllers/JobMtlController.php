@@ -45,7 +45,7 @@ class JobMtlController extends Controller
             'estsubunitcost', 'salvageestmtlunitcredit', 'salvageestlbrunitcredit', 'salvageestburunitcredit', 'salvageestsubunitcredit',
             'loanedqty', 'borrowedqty', 'reassignsnasm', 'pocostingfactor', 'plannedqtyperunit', 'pocostingdirection', 'pocostingunitval',
             'groupseq', 'sysrevid', 'sysrowid', 'showstatusicon', 'contractid', 'linktocontract', 'attributesetid', 'planningnumberofpieces',
-            'relatedstage', 'salvagerevisionnum', 'partallocqueueaction', 'outstandingreqqty_c', 'qtypertool_c'
+            'relatedstage', 'salvagerevisionnum', 'partallocqueueaction', 'outstandingreqqty_c', 'qtypertool_c', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -86,6 +86,7 @@ class JobMtlController extends Controller
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
                 $getDate = fn($row, $key) => isset($row[$key]) ? substr($row[$key], 0, 10) : null;
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -145,7 +146,7 @@ class JobMtlController extends Controller
                         $getInt($row, 'JobMtl_AttributeSetID'), $getInt($row, 'JobMtl_PlanningNumberOfPieces'),
                         $getVal($row, 'JobMtl_RelatedStage'), $getVal($row, 'JobMtl_SalvageRevisionNum'),
                         $getVal($row, 'JobMtl_PartAllocQueueAction'), $getNum($row, 'JobMtl_OutstandingReqQty_c'),
-                        $getNum($row, 'JobMtl_QtyPerTool_c'),
+                        $getNum($row, 'JobMtl_QtyPerTool_c'), $getTimestamp($row, 'Calculated_changedate'),
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
