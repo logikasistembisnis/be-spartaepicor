@@ -50,9 +50,9 @@ class JobMtlController extends Controller
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
         $placeholderRow = '(' . implode(', ', array_fill(0, $numColumns, '?')) . ')';
-        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['jobnum', 'mtlseq']));
+        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['jobnum', 'assemblyseq', 'mtlseq']));
         $updateSetSql = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
-        $conflictKeys = 'jobnum, mtlseq';
+        $conflictKeys = 'jobnum, assemblyseq, mtlseq';
 
         do {
             $response = Http::withHeaders([
