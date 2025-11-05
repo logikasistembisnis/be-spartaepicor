@@ -83,7 +83,6 @@ class CustomerController extends Controller
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
                 $getDate = fn($row, $key) => isset($row[$key]) ? substr($row[$key], 0, 10) : null;
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
-                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
