@@ -85,7 +85,7 @@ class UD101AController extends Controller
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
-                ->sortBy('UpdatedOn') // urutkan dari yang paling lama → terbaru
+                ->reverse() // urutkan dari yang paling lama → terbaru
                 ->unique(fn($r) =>
                     trim(($r['UD101A_Key1'] ?? '') . '|' .
                         ($r['UD101A_Key2'] ?? '') . '|' .

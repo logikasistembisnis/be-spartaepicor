@@ -78,6 +78,11 @@ class PoDetailController extends Controller
             
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
+                $chunk = collect($chunk)
+                ->reverse()
+                ->unique(fn($r) => $r['PODetail_PONUM'] . '-' . $r['PODetail_POLine'])
+                ->values()
+                ->toArray();
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getDate = fn($row, $key) => isset($row[$key]) ? substr($row[$key], 0, 10) : null;
                 $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;

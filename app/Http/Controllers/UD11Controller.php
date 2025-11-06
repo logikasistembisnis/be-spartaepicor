@@ -93,6 +93,11 @@ class UD11Controller extends Controller
             
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
+                $chunk = collect($chunk)
+                ->reverse()
+                ->unique(fn($r) => $r['UD11_Key1'] . '-' . $r['UD11_Key2'] . '-' . $r['UD11_Key3'] . '-' . $r['UD11_Key4'] . '-' . $r['UD11_Key5'])
+                ->values()
+                ->toArray();
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getDate = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);

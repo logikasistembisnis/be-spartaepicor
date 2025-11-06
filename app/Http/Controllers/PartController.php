@@ -85,6 +85,11 @@ class PartController extends Controller
             
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
+                $chunk = collect($chunk)
+                    ->reverse()
+                    ->unique(fn($r) => $r['Part_PartNum'])
+                    ->values()
+                    ->toArray();
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);

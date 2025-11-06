@@ -89,6 +89,11 @@ class OrderDtlController extends Controller
             
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
+                $chunk = collect($chunk)
+                ->reverse()
+                ->unique(fn($r) => $r['OrderDtl_OrderNum'] . '-' . $r['OrderDtl_OrderLine'])
+                ->values()
+                ->toArray();
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getDate = fn($row, $key) => isset($row[$key]) ? substr($row[$key], 0, 10) : null;
                 $getFloat = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);

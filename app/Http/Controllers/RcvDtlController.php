@@ -77,7 +77,7 @@ class RcvDtlController extends Controller
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
-                ->sortBy('UpdatedOn')
+                ->reverse()
                 ->unique(fn($r) => $r['RcvDtl_PackSlip'] . '-' . $r['RcvDtl_PackLine'])
                 ->values()
                 ->toArray();

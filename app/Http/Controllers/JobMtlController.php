@@ -82,6 +82,12 @@ class JobMtlController extends Controller
             
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
+                $chunk = collect($chunk)
+                    ->reverse()
+                    ->unique(fn($r) => $r['JobMtl_JobNum'] . '-' . $r['JobMtl_AssemblySeq']. '-' . $r['JobMtl_MtlSeq'])
+                    ->values()
+                    ->toArray();
+                
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';

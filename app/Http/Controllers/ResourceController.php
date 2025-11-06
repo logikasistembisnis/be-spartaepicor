@@ -72,6 +72,12 @@ class ResourceController extends Controller
             
             $dataChunks = array_chunk($data, $INTERNAL_BATCH_SIZE);
             foreach ($dataChunks as $chunk) {
+                $chunk = collect($chunk)
+                ->reverse()
+                ->unique(fn($r) => $r['Resource_ResourceGrpID'] . '-' . $r['Resource_ResourceID'])
+                ->values()
+                ->toArray();
+
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getDate = fn($row, $key) => isset($row[$key]) ? substr($row[$key], 0, 10) : null;
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
