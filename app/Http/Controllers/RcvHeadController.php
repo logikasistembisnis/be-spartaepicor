@@ -41,9 +41,9 @@ class RcvHeadController extends Controller
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
         $placeholderRow = '(' . implode(', ', array_fill(0, $numColumns, '?')) . ')';
-        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['packslip']));
+        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['vendornum', 'packslip', 'ponum']));
         $updateSetSql = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
-        $conflictKeys = 'packslip';
+        $conflictKeys = 'vendornum, packslip, ponum';
 
         do {
             $apiParams = [
@@ -78,7 +78,7 @@ class RcvHeadController extends Controller
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
                     ->reverse()
-                    ->unique(fn($r) => $r['RcvHead_PackSlip'])
+                    ->unique(fn($r) => $r['RcvHead_VendorNum'] . '-' . $r['RcvHead_PackSlip'] . '-' . $r['RcvHead_PONum'])
                     ->values()
                     ->toArray();
 

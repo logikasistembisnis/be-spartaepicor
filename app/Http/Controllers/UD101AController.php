@@ -53,9 +53,9 @@ class UD101AController extends Controller
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
         $placeholderRow = '(' . implode(', ', array_fill(0, $numColumns, '?')) . ')';
-        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['key1','key2','key3','key4','key5']));
+        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['key1','key2','key3','key4','key5', 'childkey1', 'childkey2', 'childkey3', 'childkey4', 'childkey5',]));
         $updateSetSql = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
-        $conflictKeys = 'key1, key2, key3, key4, key5';
+        $conflictKeys = 'key1, key2, key3, key4, key5, childkey1, childkey2, childkey3, childkey4, childkey5';
 
         do {
             $response = Http::withHeaders([
@@ -86,7 +86,7 @@ class UD101AController extends Controller
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
                 ->reverse() // urutkan dari yang paling lama → terbaru
-                ->unique(fn($r) => $r['UD101A_Key1'] . '-' . $r['UD101A_Key2'] . '-' . $r['UD101A_Key3'] . '-' . $r['UD101A_Key4'] . '-' . $r['UD101A_Key5'])
+                ->unique(fn($r) => $r['UD101A_Key1'] . '-' . $r['UD101A_Key2'] . '-' . $r['UD101A_Key3'] . '-' . $r['UD101A_Key4'] . '-' . $r['UD101A_Key5'] . '-' . $r['UD101A_ChildKey1'] . '-' . $r['UD101A_ChildKey2'] . '-' . $r['UD101A_ChildKey3'] . '-' . $r['UD101A_ChildKey4'] . '-' . $r['UD101A_ChildKey5'])
                 ->values()
                 ->toArray();
 

@@ -47,9 +47,9 @@ class PoHeaderController extends Controller
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
         $placeholderRow = '(' . implode(', ', array_fill(0, $numColumns, '?')) . ')';
-        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['ponum']));
+        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['ponum', 'vendornum']));
         $updateSetSql = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
-        $conflictKeys = 'ponum';
+        $conflictKeys = 'ponum, vendornum';
 
         do {
             $apiParams = [
@@ -84,7 +84,7 @@ class PoHeaderController extends Controller
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
                     ->reverse()
-                    ->unique(fn($r) => $r['POHeader_PONum'])
+                    ->unique(fn($r) => $r['POHeader_PONum'] . '-' . $r['POHeader_VendorNum'])
                     ->values()
                     ->toArray();
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
