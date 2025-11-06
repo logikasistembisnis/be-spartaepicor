@@ -86,13 +86,7 @@ class UD101AController extends Controller
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
                 ->reverse() // urutkan dari yang paling lama → terbaru
-                ->unique(fn($r) =>
-                    trim(($r['UD101A_Key1'] ?? '') . '|' .
-                        ($r['UD101A_Key2'] ?? '') . '|' .
-                        ($r['UD101A_Key3'] ?? '') . '|' .
-                        ($r['UD101A_Key4'] ?? '') . '|' .
-                        ($r['UD101A_Key5'] ?? ''))
-                )
+                ->unique(fn($r) => $r['UD101A_Key1'] . '-' . $r['UD101A_Key2'] . '-' . $r['UD101A_Key3'] . '-' . $r['UD101A_Key4'] . '-' . $r['UD101A_Key5'])
                 ->values()
                 ->toArray();
 
