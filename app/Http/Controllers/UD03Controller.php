@@ -50,7 +50,7 @@ class UD03Controller extends Controller
             'shortchar06','shortchar07','shortchar08','shortchar09','shortchar10',
             'shortchar11','shortchar12','shortchar13','shortchar14','shortchar15',
             'shortchar16','shortchar17','shortchar18','shortchar19','shortchar20',
-            'sysrevid','sysrowid',
+            'sysrevid','sysrowid', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -95,6 +95,7 @@ class UD03Controller extends Controller
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
 
                 $currentChunkBindValues = [];
 
@@ -145,6 +146,7 @@ class UD03Controller extends Controller
                         $getVal($row, 'UD03_ShortChar19'), $getVal($row, 'UD03_ShortChar20'),
 
                         $getInt($row, 'UD03_SysRevID'), $getVal($row, 'UD03_SysRowID'),
+                        $getTimestamp($row, 'Calculated_changedate')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
