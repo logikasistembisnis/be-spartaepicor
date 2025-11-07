@@ -53,7 +53,7 @@ class UD11Controller extends Controller
             'globalud11','globallock','sysrevid','sysrowid',
             'number21_c','number22_c','number23_c','number24_c','number25_c',
             'number26_c','number27_c','number28_c','number29_c','number30_c',
-            'integer01_c','integer02_c','integer03_c','integer04_c','integer05_c'
+            'integer01_c','integer02_c','integer03_c','integer04_c','integer05_c', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -162,7 +162,7 @@ class UD11Controller extends Controller
 
                         $getInt($row, 'UD11_integer01_c'), $getInt($row, 'UD11_integer02_c'),
                         $getInt($row, 'UD11_integer03_c'), $getInt($row, 'UD11_integer04_c'),
-                        $getInt($row, 'UD11_integer05_c'),
+                        $getInt($row, 'UD11_integer05_c'), $getDate($row, 'Calculated_changedate'),
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
