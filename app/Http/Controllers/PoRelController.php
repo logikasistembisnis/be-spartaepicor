@@ -17,7 +17,7 @@ class PoRelController extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncPoRelData(): array
+    public function syncPoRelData(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -52,15 +52,19 @@ class PoRelController extends Controller
         $conflictKeys = 'ponum, poline, porelnum';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_PoRel/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_PoRel/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
