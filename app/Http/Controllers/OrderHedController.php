@@ -58,9 +58,9 @@ class OrderHedController extends Controller
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
         $placeholderRow = '(' . implode(', ', array_fill(0, $numColumns, '?')) . ')';
-        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['ponum']));
+        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['ordernum']));
         $updateSetSql = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
-        $conflictKeys = 'ponum';
+        $conflictKeys = 'ordernum';
 
         do {
             $apiParams = [
@@ -95,7 +95,7 @@ class OrderHedController extends Controller
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
                     ->reverse()
-                    ->unique(fn($r) => $r['OrderHed_PONum'])
+                    ->unique(fn($r) => $r['OrderHed_OrderNum'])
                     ->values()
                     ->toArray();
 
