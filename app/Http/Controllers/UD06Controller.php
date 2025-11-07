@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class UD06Controller extends Controller
 {
@@ -16,7 +17,7 @@ class UD06Controller extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncUD06Data(): array
+    public function syncUD06Data(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -52,7 +53,7 @@ class UD06Controller extends Controller
             'globalud06','globallock','sysrevid','sysrowid',
             'partwip_c','partfg_c','wipno_c','tipeopr_c','bomlvlrevs_c',
             'nexttipeopr_c','beforescno_c','scno_c','mchno_c','mtlpart_c',
-            'fgrowno_c','operation_c'
+            'fgrowno_c','operation_c', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -62,15 +63,19 @@ class UD06Controller extends Controller
         $conflictKeys = 'key1, key2, key3, key4, key5';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_UD06/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_UD06/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -98,6 +103,7 @@ class UD06Controller extends Controller
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -154,7 +160,8 @@ class UD06Controller extends Controller
                         $getVal($row, 'UD06_tipeopr_c'), $getInt($row, 'UD06_bomlvlrevs_c'),
                         $getVal($row, 'UD06_nexttipeopr_c'), $getInt($row, 'UD06_beforescno_c'), $getInt($row, 'UD06_scno_c'),
                         $getInt($row, 'UD06_mchno_c'), $getVal($row, 'UD06_mtlpart_c'),
-                        $getInt($row, 'UD06_FGRowNo_c'), $getVal($row, 'UD06_operation_c')
+                        $getInt($row, 'UD06_FGRowNo_c'), $getVal($row, 'UD06_operation_c'),
+                        $getTimestamp($row, 'Calculated_changedate'),
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
