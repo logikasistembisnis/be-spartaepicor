@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class UD101Controller extends Controller
 {
@@ -16,7 +17,7 @@ class UD101Controller extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncUD101Data(): array
+    public function syncUD101Data(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -47,7 +48,7 @@ class UD101Controller extends Controller
             'checkbox16','checkbox17','checkbox18','checkbox19','checkbox20',
             'shortchar01','shortchar02','shortchar03','shortchar04','shortchar05',
             'shortchar06','shortchar07','shortchar08','shortchar09','shortchar10',
-            'sysrevid','sysrowid',
+            'sysrevid','sysrowid', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -57,15 +58,19 @@ class UD101Controller extends Controller
         $conflictKeys = 'key1, key2, key3, key4, key5';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_UD101/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_UD101/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -93,6 +98,7 @@ class UD101Controller extends Controller
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -138,7 +144,7 @@ class UD101Controller extends Controller
                         $getVal($row, 'UD101_ShortChar06'), $getVal($row, 'UD101_ShortChar07'), $getVal($row, 'UD101_ShortChar08'),
                         $getVal($row, 'UD101_ShortChar09'), $getVal($row, 'UD101_ShortChar10'),
 
-                        $getInt($row, 'UD101_SysRevID'), $getVal($row, 'UD101_SysRowID'),
+                        $getInt($row, 'UD101_SysRevID'), $getVal($row, 'UD101_SysRowID'), $getTimestamp($row, 'Calculated_changedate'),
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
