@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class PartClassController extends Controller
 {
@@ -16,7 +17,7 @@ class PartClassController extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncPartClassData(): array
+    public function syncPartClassData(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -33,7 +34,7 @@ class PartClassController extends Controller
             'classid', 'description', 'buyerid', 'rcvinspectionreq', 'commoditycode', 'availforreq', 'mtlburrate',
             'splitpoline', 'negqtyaction', 'purchcode', 'consolidatedpurchasing', 'globalpartclass', 'globallock', 
             'sysrevid', 'sysrowid', 'mmsinclude', 'partleadtime', 'inactive', 'spartainspection_c', 
-            'groupclass_c'
+            'groupclass_c', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -43,15 +44,19 @@ class PartClassController extends Controller
         $conflictKeys = 'classid';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_PartClass/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_PartClass/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -80,6 +85,7 @@ class PartClassController extends Controller
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -94,7 +100,8 @@ class PartClassController extends Controller
                         $getBool($row, 'PartClass_GlobalLock'), $getInt($row, 'PartClass_SysRevID'),
                         $getVal($row, 'PartClass_SysRowID'), $getBool($row, 'PartClass_MMSInclude'),
                         $getInt($row, 'PartClass_PartLeadTime'), $getBool($row, 'PartClass_Inactive'), 
-                        $getBool($row, 'PartClass_SpartaInspection_c'), $getVal($row, 'PartClass_GroupClass_c')
+                        $getBool($row, 'PartClass_SpartaInspection_c'), $getVal($row, 'PartClass_GroupClass_c'),
+                        $getTimestamp($row, 'Calculated_changedate')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);

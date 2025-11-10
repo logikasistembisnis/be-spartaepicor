@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class OpMasterController extends Controller
 {
@@ -16,7 +17,7 @@ class OpMasterController extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncOpMasterData(): array
+    public function syncOpMasterData(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -32,7 +33,7 @@ class OpMasterController extends Controller
         $columnNames = [
             'opcode', 'opdesc', 'optextid', 'buyerid', 'apsprepopf', 'optype', 'commenttext', 'billlaborrate',
             'estlabhours', 'schedprecedence', 'analysiscode', 'primarysetupopdtl', 'primaryprodopdtl', 'vendornum',
-            'subcontract', 'sendaheadtype', 'sendaheadoffset', 'sysrevid', 'sysrowid'
+            'subcontract', 'sendaheadtype', 'sendaheadoffset', 'sysrevid', 'sysrowid', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -42,15 +43,19 @@ class OpMasterController extends Controller
         $conflictKeys = 'opcode';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_OpMaster/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_OpMaster/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -78,6 +83,7 @@ class OpMasterController extends Controller
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -91,7 +97,7 @@ class OpMasterController extends Controller
                         $getInt($row, 'OpMaster_PrimaryProdOpDtl'), $getInt($row, 'OpMaster_VendorNum'),
                         $getBool($row, 'OpMaster_Subcontract'), $getVal($row, 'OpMaster_SendAheadType'), 
                         $getNum($row, 'OpMaster_SendAheadOffset'), $getInt($row, 'OpMaster_SysRevID'), 
-                        $getVal($row, 'OpMaster_SysRowID')
+                        $getVal($row, 'OpMaster_SysRowID'), $getTimestamp($row, 'Calculated_changedate')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class WarehouseBinController extends Controller
 {
@@ -16,7 +17,7 @@ class WarehouseBinController extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncWarehouseBinData(): array
+    public function syncWarehouseBinData(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -31,7 +32,7 @@ class WarehouseBinController extends Controller
         // Definisi Kolom dan Sintaks SQL
         $columnNames = [
             'warehousecode', 'binnum', 'description', 'nonnettable', 'custnum', 'vendornum',
-            'inactive','sysrevid', 'sysrowid'
+            'inactive','sysrevid', 'sysrowid', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -41,15 +42,19 @@ class WarehouseBinController extends Controller
         $conflictKeys = 'warehousecode, binnum';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_Whsebin/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_Whsebin/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -75,6 +80,7 @@ class WarehouseBinController extends Controller
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -88,7 +94,8 @@ class WarehouseBinController extends Controller
                         $getInt($row, 'WhseBin_VendorNum'),
                         $getBool($row, 'WhseBin_InActive'),
                         $getInt($row, 'WhseBin_SysRevID'),
-                        $getVal($row, 'WhseBin_SysRowID')
+                        $getVal($row, 'WhseBin_SysRowID'),
+                        $getTimestamp($row, 'Calculated_changedate')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);

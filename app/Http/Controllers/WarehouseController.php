@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class WarehouseController extends Controller
 {
@@ -16,7 +17,7 @@ class WarehouseController extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncWarehouseData(): array
+    public function syncWarehouseData(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -33,7 +34,7 @@ class WarehouseController extends Controller
             'warehousecode', 'description', 'name', 'address1', 'address2', 'address3',
             'plant', 'warehousetype', 'warehousetypedefault',
             'whproduksi_c', 'whfg_c', 'whincoming_c', 'whng_c', 'whsubcon_c', 'whtype_c',
-            'sysrevid', 'sysrowid'
+            'sysrevid', 'sysrowid', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -43,15 +44,19 @@ class WarehouseController extends Controller
         $conflictKeys = 'warehousecode';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_Warehse/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_Warehse/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -77,6 +82,7 @@ class WarehouseController extends Controller
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -98,7 +104,8 @@ class WarehouseController extends Controller
                         $getBool($row, 'Warehse_whsubcon_c'),
                         $getVal($row, 'Warehse_whtype_c'),
                         $getInt($row, 'Warehse_SysRevID'),
-                        $getVal($row, 'Warehse_SysRowID')
+                        $getVal($row, 'Warehse_SysRowID'),
+                        $getTimestamp($row, 'Calculated_changedate')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);

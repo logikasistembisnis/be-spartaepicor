@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ResourceController extends Controller
 {
@@ -16,7 +17,7 @@ class ResourceController extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncResourceData(): array
+    public function syncResourceData(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -36,7 +37,7 @@ class ResourceController extends Controller
             'qprodburrate', 'qprodlabrate', 'qsetupburrate', 'qsetuplabrate', 'qburdentype', 'vendornum', 'burdentype', 
             'calendarid', 'movehours', 'quehours', 'opcode', 'opstdid', 'splitoperations', 'dailyprodqty', 'billlaborrate', 
             'dailyprodrate', 'location', 'inspplanpartnum', 'specid', 'lastcaldate', 'inspplanrevnum', 'specrevnum', 'equipid', 
-            'setuptime', 'sysrevid', 'sysrowid'
+            'setuptime', 'sysrevid', 'sysrowid', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -46,15 +47,19 @@ class ResourceController extends Controller
         $conflictKeys = 'resourcegrpid, resourceid';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_Resource/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_Resource/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -83,6 +88,7 @@ class ResourceController extends Controller
                 $getNum = fn($row, $key, $default = 0.0) => (float)($row[$key] ?? $default);
                 $getInt = fn($row, $key, $default = 0) => (int)($row[$key] ?? $default);
                 $getBool = fn($row, $key) => (bool)($row[$key] ?? false) ? '1' : '0';
+                $getTimestamp = fn($row, $key) => isset($row[$key]) ? (new Carbon($row[$key]))->format('Y-m-d H:i:s') : null;
                 
                 $currentChunkBindValues = [];
 
@@ -112,7 +118,7 @@ class ResourceController extends Controller
                         $getDate($row, 'Resource_LastCalDate'), $getVal($row, 'Resource_InspPlanRevNum'),
                         $getVal($row, 'Resource_SpecRevNum'), $getVal($row, 'Resource_EquipID'),
                         $getInt($row, 'Resource_SetupTime'), $getInt($row, 'Resource_SysRevID'),
-                        $getVal($row, 'Resource_SysRowID')
+                        $getVal($row, 'Resource_SysRowID'), $getTimestamp($row, 'Calculated_changedate')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);

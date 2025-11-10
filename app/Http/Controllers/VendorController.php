@@ -17,7 +17,7 @@ class VendorController extends Controller
      *
      * @return array Hasil summary
      */
-    public function syncVendorData(): array
+    public function syncVendorData(?string $period = null, ?string $startDate = null): array
     {
         // Inisialisasi dan Konfigurasi
         $INTERNAL_BATCH_SIZE = 500;
@@ -37,7 +37,7 @@ class VendorController extends Controller
             'icvend', 'emailaddress', 'consolidatedpurchasing', 'localpurchasing', 'cpay', 'individualpackids', 
             'certoforigin', 'commercialinvoice', 'shipexprtdeclartn', 'letterofinstr', 'nonstdpkg', 'deliveryconf', 
             'pmuid', 'hasbank', 'pmtacctref', 'taxregreason', 'orgregcode', 'sysrevid', 'sysrowid', 'paramcode', 
-            'maxlatedaysporel', 'shipviacode', 'nonus', 'taxvalidationstatus', 'taxvalidationdate'
+            'maxlatedaysporel', 'shipviacode', 'nonus', 'taxvalidationstatus', 'taxvalidationdate', 'calculated_changedate'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -47,15 +47,19 @@ class VendorController extends Controller
         $conflictKeys = 'vendorid';
 
         do {
+            $apiParams = [
+                'OffsetNum' => (string)$offsetNum,
+                'FetchNum' => (string)$fetchNum,
+                'Periode' => (string)$period,
+                'StartDate' => (string)$startDate, // null akan menjadi ""
+            ];
+
             $response = Http::withHeaders([
                 'x-api-key' => env('EPICOR_API_KEY'),
                 'License' => env('EPICOR_LICENSE'),
             ])->withBasicAuth(env('EPICOR_USERNAME'), env('EPICOR_PASSWORD'))
             ->timeout(600)
-            ->get(env('EPICOR_API_URL'). '/ETL_Vendor/Data', [
-                'OffsetNum' => $offsetNum,
-                'FetchNum' => $fetchNum
-            ]);
+            ->get(env('EPICOR_API_URL'). '/ETL_Vendor/Data', $apiParams);
 
             if ($response->failed()) {
                 $status = $response->status();
@@ -113,7 +117,7 @@ class VendorController extends Controller
                         $getVal($row, 'Vendor_SysRowID'), $getVal($row, 'Vendor_ParamCode'),
                         $getInt($row, 'Vendor_MaxLateDaysPORel'), $getVal($row, 'Vendor_ShipViaCode'),
                         $getBool($row, 'Vendor_NonUS'), $getInt($row, 'Vendor_TaxValidationStatus'),
-                        $getTimestamp($row, 'Vendor_TaxValidationDate')
+                        $getTimestamp($row, 'Vendor_TaxValidationDate'), $getTimestamp($row, 'Calculated_changedate')
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
