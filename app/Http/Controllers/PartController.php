@@ -45,7 +45,7 @@ class PartController extends Controller
             'photofile', 'partphotoexists', 'commenttext', 'imageid', 'createdby', 'createdon',
             'changedon', 'saleable', 'partfg_c', 'heijunka_c', 'supplierpartnum_c',
             'supplierpartdesc_c', 'lineke_c', 'grprptmcp_c', 'grprptmcpsc_c', 'custsupply_c',
-            'partnumparent_c', 'krwtype_c', 'dyhtype_c', 'srgtype_c','sysrevid', 'sysrowid'
+            'partnumparent_c', 'krwtype_c', 'dyhtype_c', 'srgtype_c','sysrevid', 'sysrowid', 'condition'
         ];
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
@@ -128,7 +128,7 @@ class PartController extends Controller
                         $getInt($row, 'Part_lineke_c'), $getVal($row, 'Part_GrpRptMCP_c'), $getVal($row, 'Part_GrpRptMCPSC_c'),
                         $getBool($row, 'Part_CustSupply_c'), $getVal($row, 'Part_PartNumParent_c'),
                         $getVal($row, 'Part_KrwType_c'), $getVal($row, 'Part_DyhType_c'), $getVal($row, 'Part_SrgType_c'),
-                        $getInt($row, 'Part_SysRevID'), $getVal($row, 'Part_SysRowID'),
+                        $getInt($row, 'Part_SysRevID'), $getVal($row, 'Part_SysRowID'), $getVal($row, 'Part_Condition'),
                     ];
 
                     array_push($currentChunkBindValues, ...$rowData);
