@@ -58,9 +58,9 @@ class UD11Controller extends Controller
         $columnsSql = implode(', ', $columnNames);
         $numColumns = count($columnNames);
         $placeholderRow = '(' . implode(', ', array_fill(0, $numColumns, '?')) . ')';
-        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['key1','key2','key3','key4','key5']));
+        $updateColumns = array_filter($columnNames, fn($col) => !in_array($col, ['key1','key2','key3','key5']));
         $updateSetSql = implode(', ', array_map(fn($col) => "{$col} = EXCLUDED.{$col}", $updateColumns));
-        $conflictKeys = 'key1, key2, key3, key4, key5';
+        $conflictKeys = 'key1, key2, key3, key5';
 
         do {
             $apiParams = [
@@ -95,7 +95,7 @@ class UD11Controller extends Controller
             foreach ($dataChunks as $chunk) {
                 $chunk = collect($chunk)
                 ->reverse()
-                ->unique(fn($r) => $r['UD11_Key1'] . '-' . $r['UD11_Key2'] . '-' . $r['UD11_Key3'] . '-' . $r['UD11_Key4'] . '-' . $r['UD11_Key5'])
+                ->unique(fn($r) => $r['UD11_Key1'] . '-' . $r['UD11_Key2'] . '-' . $r['UD11_Key3'] . '-' . $r['UD11_Key5'])
                 ->values()
                 ->toArray();
                 $getVal = fn($row, $key, $default = null) => $row[$key] ?? $default;
