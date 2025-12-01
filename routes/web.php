@@ -43,3 +43,4 @@ $router->get('/fetchdatavendor', 'VendorController@fetchDataVendor');
 $router->get('/fetchdatacustomer', 'CustomerController@fetchDataCustomer');
 $router->get('/fetchdataorderdtl', 'OrderDtlController@fetchDataOrderDtl');
 $router->get('/fetchdataud101a', 'UD101AController@fetchDataUD101A');
+$router->get('/fetchdataud10', 'UD10Controller@fetchDataUD10');
