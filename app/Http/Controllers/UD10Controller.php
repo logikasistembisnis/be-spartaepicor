@@ -159,7 +159,7 @@ class UD10Controller extends Controller
                     try {
                         DB::beginTransaction();
                         $placeholderRows = implode(', ', array_fill(0, count($chunk), $placeholderRow));
-                        $sql = "INSERT INTO UD10 ({$columnsSql}) VALUES {$placeholderRows} ON CONFLICT ({$conflictKeys}) DO UPDATE SET {$updateSetSql}";
+                        $sql = "INSERT INTO ud10 ({$columnsSql}) VALUES {$placeholderRows} ON CONFLICT ({$conflictKeys}) DO UPDATE SET {$updateSetSql}";
                         DB::insert($sql, $currentChunkBindValues);
                         DB::commit();
                         $batchCount++;
